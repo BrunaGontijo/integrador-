@@ -1,0 +1,51 @@
+import tkinter as tk
+from tkinter import messagebox
+import folium
+import webbrowser
+from geopy.geocoders import Nominatim
+
+class RampApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("App de Rampas de Acesso")
+
+        # Interface
+        tk.Label(root, text="Endereço:").pack()
+        self.address_entry = tk.Entry(root, width=50)
+        self.address_entry.pack()
+
+        tk.Button(root, text="Adicionar Rampa", command=self.add_ramp).pack()
+
+        # Inicializa o mapa com uma localização padrão
+        self.map = folium.Map(location=[0, 0], zoom_start=2)
+        self.geolocator = Nominatim(user_agent="ramp_app")
+
+    def add_ramp(self):
+        address = self.address_entry.get()
+        if not address:
+            messagebox.showerror("Erro", "Por favor, insira um endereço.")
+            return
+
+        # Geocodifica o endereço
+        location = self.geolocator.geocode(address)
+        if location is None:
+            messagebox.showerror("Erro", "Endereço não encontrado. Tente novamente.")
+            return
+
+        # Adiciona um marcador ao mapa
+        folium.Marker([location.latitude, location.longitude], popup="Rampa de Acesso").add_to(self.map)
+        self.show_map()
+
+    def show_map(self):
+        # Salva o mapa como um arquivo HTML
+        self.map.save("map.html")
+        # Abre o arquivo HTML no navegador padrão
+        webbrowser.open("map.html")
+
+        # objeto para o mapa 
+        
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = RampApp(root)
+    root.mainloop()
+
